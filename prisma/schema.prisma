@@ -6,13 +6,68 @@ datasource db {
   provider = "postgresql"
 }
 
-/*
-  Placeholder model.
-  Exists only to verify:
-  - migrations work
-  - DB connectivity works
-*/
+/**
+ * Placeholder model.
+ * Exists only to verify:
+ * - migrations work
+ * - DB connectivity works
+ */
 model HealthProbe {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum UserRole {
+  USER
+  AGENT
+  ADMIN
+}
+
+model User {
+  id    String   @id @default(cuid())
+  email String   @unique
+  role  UserRole @default(USER)
+
+  // Relations
+  ticketsCreated  Ticket[] @relation("TicketCreatedBy")
+  ticketsAssigned Ticket[] @relation("TicketAssignedTo")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ticket {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+
+  // Relations
+  createdById String
+  createdBy   User   @relation("TicketCreatedBy", fields: [createdById], references: [id])
+
+  assignedToId String?
+  assignedTo   User?   @relation("TicketAssignedTo", fields: [assignedToId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdById])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([priority])
 }
