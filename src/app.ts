@@ -1,8 +1,8 @@
 import express from "express";
 import { prisma } from "./db/prisma.js";
 import { asyncHandler } from "./utils/asyncHandler.js";
-import { notFound } from "./middlewares/notFound.js";
-import { errorHandler } from "./middlewares/errorHandler.js";
+import { notFound } from "./middleware/notFound.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 import ticketRoutes from "./routes/ticket.routes.js";
 
 export const app = express();

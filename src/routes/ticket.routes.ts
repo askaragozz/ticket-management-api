@@ -1,11 +1,14 @@
 import { Router } from "express";
-import { createTicket } from "../controllers/ticket.controller.js";
-import { requireAuth } from "../middlewares/requireAuth.js";
-import { validateBody } from "../middlewares/validate.js";
+import { createTicket, listTickets } from "../controllers/ticket.controller.js";
+import { requireAuth } from "../middleware/requireAuth.js";
+import { validateBody } from "../middleware/validate.js";
+import { validateQuery } from "../middleware/validateQuery.js";
 import { createTicketSchema } from "../schemas/ticket.schema.js";
+import { listTicketsQuerySchema } from "../schemas/ticket.query.js";
 
 const router = Router();
 
 router.post("/", requireAuth, validateBody(createTicketSchema), createTicket);
+router.get("/", requireAuth, validateQuery(listTicketsQuerySchema), listTickets);
 
 export default router;
