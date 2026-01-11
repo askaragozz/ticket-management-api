@@ -88,3 +88,49 @@ export async function listTickets(req: Request, res: Response) {
     items,
   });
 }
+
+export async function getTicketById(req: Request, res: Response) {
+  const userId = req.user?.id;
+  const role = req.user?.role ?? "USER";
+
+  if (!userId) {
+    return res.status(401).json({
+      error: { code: "UNAUTHORIZED", message: "Unauthorized" },
+    });
+  }
+
+  const { id } = res.locals.params as { id: string };
+
+  const ticket = await prisma.ticket.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      status: true,
+      priority: true,
+      createdAt: true,
+      updatedAt: true,
+      createdById: true,
+      assignedToId: true,
+    },
+  });
+
+  if (!ticket) {
+    return res.status(404).json({
+      error: { code: "NOT_FOUND", message: "Ticket not found" },
+    });
+  }
+
+  if (
+    role !== "ADMIN" &&
+    ticket.createdById !== userId &&
+    ticket.assignedToId !== userId
+  ) {
+    return res.status(403).json({
+      error: { code: "FORBIDDEN", message: "Access denied" },
+    });
+  }
+
+  return res.json({ ticket });
+}
